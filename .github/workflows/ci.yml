@@ -16,6 +16,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      - name: View machine configuration
+        run: |
+          cat /proc/cpuinfo
+      
       - name: Checkout
         uses: actions/checkout@v4
         with:
