@@ -89,18 +89,33 @@ class FollowViewModel @AssistedInject constructor(
                             if (isRefreshing) list.clear()
                             if (isRefreshing || isLoadMore) {
                                 feed.data.forEach {
-                                    if (it.entityType == "feed"
-                                        || it.entityType == "contacts"
-                                        || it.entityType == "apk"
-                                        || it.entityType == "feed_reply"
-                                        || it.entityType == "recentHistory"
+                                    if (it.entityType in listOf(
+                                            "feed", "contacts", "apk", "feed_reply", "recentHistory"
+                                        )
                                     )
                                         if (!blackListRepo.checkUid(it.userInfo?.uid.toString())
                                             && !blackListRepo.checkTopic(
                                                 it.tags + it.ttitle + it.relationRows?.getOrNull(0)?.title
                                             )
-                                        )
+                                        ) {
+                                            if (it.entityType == "feed" && !it.replyRows.isNullOrEmpty()) {
+                                                if (!blackListRepo.checkUid(
+                                                        it.replyRows?.getOrNull(0)?.uid.toString()
+                                                    )
+                                                ) {
+                                                    it.replyRows?.getOrNull(0)?.let { reply ->
+                                                        val pic =
+                                                            if (reply.picArr.isNullOrEmpty()) ""
+                                                            else " ${if (reply.message == "[图片]") "" else "[图片] "}<a class=\"feed-forward-pic\" href=${reply.pic}>查看图片(${reply.picArr.size})</a>"
+
+                                                        reply.message =
+                                                            "<a class=\"feed-link-uname\" href=\"/u/${reply.uid}\">${reply.userInfo?.username}</a>: ${reply.message}$pic"
+                                                    }
+                                                } else it.replyRows = null
+                                            }
                                             list.add(it)
+                                        }
+
                                 }
                             }
                             page++
@@ -187,11 +202,7 @@ class FollowViewModel @AssistedInject constructor(
                                 list.clear()
                             if (isRefreshing || isLoadMore) {
                                 data.data.forEach {
-                                    if (it.entityType == "feed"
-                                        || it.entityType == "topic"
-                                        || it.entityType == "product"
-                                        || it.entityType == "user"
-                                    )
+                                    if (it.entityType in listOf("feed", "topic", "product", "user"))
                                         if (!blackListRepo.checkUid(it.userInfo?.uid.toString())
                                             && !blackListRepo.checkTopic(
                                                 it.tags + it.ttitle + it.relationRows?.getOrNull(0)?.title

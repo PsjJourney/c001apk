@@ -48,7 +48,7 @@ class CarouselViewModel @AssistedInject constructor(
     }
 
     var isAInit: Boolean = true
-    var topicList: List<TopicBean>? = null
+    var topicList: ArrayList<TopicBean>? = null
     var pageTitle: String? = null
     private var tmpList: ArrayList<HomeFeedResponse.Data>? = null
 
@@ -69,18 +69,17 @@ class CarouselViewModel @AssistedInject constructor(
                             val isIconTabLinkGridCard =
                                 response.data.find { it.entityTemplate == "iconTabLinkGridCard" }
                             if (isIconTabLinkGridCard != null) {
-                                topicList = isIconTabLinkGridCard.entities?.map {
+                                isIconTabLinkGridCard.entities?.map {
                                     TopicBean(it.url, it.title)
+                                }?.let {
+                                    topicList = ArrayList()
+                                    topicList?.addAll(it)
                                 }
                             } else {
                                 tmpList = ArrayList()
                                 lastItem = response.data.last().id
                                 response.data.forEach {
-                                    if (it.entityType == "feed"
-                                        || it.entityType == "topic"
-                                        || it.entityType == "product"
-                                        || it.entityType == "user"
-                                    )
+                                    if (it.entityType in listOf("feed", "topic", "product", "user"))
                                         if (!blackListRepo.checkUid(it.userInfo?.uid.toString())
                                             && !blackListRepo.checkTopic(
                                                 it.tags + it.ttitle + it.relationRows?.getOrNull(0)?.title
@@ -137,11 +136,7 @@ class CarouselViewModel @AssistedInject constructor(
                                 topicDataList.clear()
                             if (isRefreshing || isLoadMore) {
                                 data.data.forEach {
-                                    if (it.entityType == "feed"
-                                        || it.entityType == "topic"
-                                        || it.entityType == "product"
-                                        || it.entityType == "user"
-                                    )
+                                    if (it.entityType in listOf("feed", "topic", "product", "user"))
                                         if (!blackListRepo.checkUid(it.userInfo?.uid.toString())
                                             && !blackListRepo.checkTopic(
                                                 it.tags + it.ttitle + it.relationRows?.getOrNull(0)?.title

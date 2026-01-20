@@ -1,8 +1,10 @@
 package com.example.c001apk.ui.feed
 
+import android.content.res.Configuration
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.c001apk.BR
 import com.example.c001apk.adapter.ItemListener
 import com.example.c001apk.databinding.ItemFeedArticleImageBinding
@@ -45,7 +47,7 @@ class FeedDataAdapter(
             binding.setVariable(BR.data, data)
             binding.setVariable(BR.listener, listener)
             binding.textView.paint.isFakeBoldText =
-                (bindingAdapterPosition == 0 || bindingAdapterPosition == 1) && data?.title == "true"
+                (bindingAdapterPosition in listOf(0, 1)) && data?.title == "true"
             binding.executePendingBindings()
         }
     }
@@ -73,13 +75,20 @@ class FeedDataAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
 
-            0 -> FeedViewHolder(
-                ItemFeedContentBinding.inflate(
+            0 -> {
+                val binding = ItemFeedContentBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
                     false
-                ), listener
-            )
+                )
+                with(binding.root.layoutParams) {
+                    if (parent.context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+                        && this is StaggeredGridLayoutManager.LayoutParams
+                    )
+                        isFullSpan = true
+                }
+                FeedViewHolder(binding, listener)
+            }
 
             1 -> TextViewHolder(
                 ItemFeedArticleTextBinding.inflate(

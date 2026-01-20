@@ -39,25 +39,41 @@ object NetWorkUtil {
     }
 
     fun openLink(context: Context, url: String, title: String?) {
-        val replace = url.replace("https://", "")
+        val replace = url
+            .replace("coolmarket://", "/")
+            .replace("https://", "")
             .replace("http://", "")
             .replace("www.", "")
             .replace("coolapk1s", "coolapk")
             .replace("coolapk.com", "")
 
         if (replace.startsWith("/feed/")) {
-            val id = if (replace.contains("shareKey"))
-                replace.substring(6, replace.indexOf("?shareKey"))
-            else replace.replace("/feed/", "")
-            IntentUtil.startActivity<FeedActivity>(context) {
-                putExtra("id", id)
+            with(replace.indexOfFirst { it == '?' }) {
+                IntentUtil.startActivity<FeedActivity>(context) {
+                    putExtra(
+                        "id",
+                        if (this@with != -1) replace.substring(6, this@with)
+                        else replace.substring(6)
+                    )
+                    if (this@with != -1) {
+                        replace.indexOf("rid=").let {
+                            if (it != -1) {
+                                putExtra("rid", replace.substring(it + 4))
+                                putExtra("viewReply", true)
+                            }
+                        }
+                    }
+                }
             }
         } else if (replace.startsWith("/picture/")) {
-            val id = if (replace.contains("shareKey"))
-                replace.substring(9, replace.indexOf("?shareKey"))
-            else replace.replace("/picture/", "")
-            IntentUtil.startActivity<FeedActivity>(context) {
-                putExtra("id", id)
+            with(replace.indexOfFirst { it == '?' }) {
+                IntentUtil.startActivity<FeedActivity>(context) {
+                    putExtra(
+                        "id",
+                        if (this@with != -1) replace.substring(9, this@with)
+                        else replace.substring(9)
+                    )
+                }
             }
         } else if (replace.startsWith("#/feed/")) { // iconLinkGridCard-coolpic
             IntentUtil.startActivity<CarouselActivity>(context) {
@@ -70,33 +86,29 @@ object NetWorkUtil {
             }
         } else if (replace.startsWith("/u/")) {
             IntentUtil.startActivity<UserActivity>(context) {
-                putExtra("id", replace.replace("/u/", ""))
+                putExtra("id", replace.substring(3))
             }
         } else if (replace.startsWith("/t/")) {
             if (replace.contains("?type=8")) {
                 IntentUtil.startActivity<CoolPicActivity>(context) {
-                    putExtra("title", replace.replace("/t/", "").replace("?type=8", ""))
+                    putExtra("title", replace.substring(3, replace.indexOfFirst { it == '?' }))
                 }
             } else {
-                IntentUtil.startActivity<TopicActivity>(context) {
-                    putExtra("type", "topic")
-                    putExtra(
-                        "url",
-                        if (replace.contains("?type=")) replace.substring(3, replace.indexOf("?"))
-                        else replace.replace("/t/", "")
-                    )
-                    putExtra(
-                        "title",
-                        if (replace.contains("?type=")) replace.substring(3, replace.indexOf("?"))
-                        else replace.replace("/t/", "")
-                    )
+                with(replace.indexOfFirst { it == '?' }) {
+                    val param = if (this@with != -1) replace.substring(3, this@with)
+                    else replace.substring(3)
+                    IntentUtil.startActivity<TopicActivity>(context) {
+                        putExtra("type", "topic")
+                        putExtra("url", param)
+                        putExtra("title", param)
+                    }
                 }
             }
         } else if (replace.startsWith("/product/")) {
             IntentUtil.startActivity<TopicActivity>(context) {
                 putExtra("type", "product")
                 putExtra("title", title)
-                putExtra("id", replace.replace("/product/", ""))
+                putExtra("id", replace.substring(9))
             }
         } else if (replace.startsWith("#/page?url=") || replace.startsWith("/page?url=")) {
             IntentUtil.startActivity<CarouselActivity>(context) {
@@ -123,6 +135,7 @@ object NetWorkUtil {
             }
         } else {
             Toast.makeText(context, "unsupported url: $url", Toast.LENGTH_SHORT).show()
+            ClipboardUtil.copyText(context, url, false)
         }
     }
 

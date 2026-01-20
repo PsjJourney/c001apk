@@ -142,24 +142,26 @@
             android:id="@+id/like"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:background="?attr/actionBarItemBackground"
             android:onClick="@{() -> listener.onLikeClick(`feed`, data.id, likeData.isLike)}"
             android:text="@{likeData.likeNum}"
             android:textColor="@android:color/darker_gray"
-            app:layout_constraintBaseline_toBaselineOf="@id/ip"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/forwarded"
             app:setLike="@{likeData.isLike}" />
 
         <TextView
             android:id="@+id/reply"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="10dp"
             android:textColor="@android:color/darker_gray"
             app:customText="@{data.replynum}"
             app:icon="@{@drawable/ic_message}"
-            app:layout_constraintBaseline_toBaselineOf="@id/ip"
-            app:layout_constraintEnd_toStartOf="@id/like" />
+            app:layout_constraintEnd_toStartOf="@id/like"
+            app:layout_constraintTop_toBottomOf="@id/forwarded" />
 
         <com.example.c001apk.view.ninegridimageview.NineGridImageView
             android:id="@+id/multiImage"
@@ -169,6 +171,7 @@
             app:feedType="@{data.feedType}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/message"
+            app:pic="@{data.pic}"
             app:picArr="@{data.picArr}" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -260,6 +263,7 @@
                 android:layout_height="10dp"
                 android:layout_marginTop="10dp"
                 app:feedType="@{data.forwardSourceFeed.feedType}"
+                app:pic="@{data.pic}"
                 app:picArr="@{data.forwardSourceFeed.picArr}" />
 
         </LinearLayout>
@@ -272,10 +276,10 @@
             android:scrollbars="none"
             android:visibility="@{data.targetRow.id == null &amp;&amp; (data.relationRows.size() == 0 || data.relationRows==null) ? View.GONE : View.VISIBLE}"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ip">
+            app:layout_constraintTop_toBottomOf="@id/like">
 
-            <com.example.c001apk.view.LinearAdapterLayout
-                android:id="@+id/linearAdapterLayout"
+            <LinearLayout
+                android:id="@+id/linearLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"

@@ -51,8 +51,10 @@ interface ItemListener {
                 if (index0 != -1 && index1 != -1 && index2 != -1) {
                     id = href.replace("/feed/", "").substring(0, index0)
                     rid = href.substring(index1 + 4, index2)
-                } else
-                    id = href
+                } else if (index0 != -1 && index1 != -1 && index2 == -1) {
+                    id = href.replace("/feed/", "").substring(0, index0)
+                    rid = href.substring(index1 + 4)
+                } else id = href
                 IntentUtil.startActivity<FeedActivity>(view.context) {
                     putExtra("viewReply", true)
                     putExtra("id", id)
@@ -72,7 +74,14 @@ interface ItemListener {
         }
     }
 
-    fun showTotalReply(id: String, uid: String, position: Int, rPosition: Int?) {}
+    fun showTotalReply(
+        id: String,
+        uid: String,
+        position: Int,
+        rPosition: Int?,
+        intercept: Boolean = false
+    ) {
+    }
 
     fun viewFFFList(view: View, uid: String?, isEnable: Boolean, type: String) {
         uid?.let {
@@ -153,7 +162,15 @@ interface ItemListener {
 
     fun onLikeClick(type: String, id: String, isLike: Int) {}
 
-    fun onReply(id: String, uid: String, username: String?, position: Int, rPosition: Int?) {}
+    fun onReply(
+        id: String,
+        cuid: String,
+        uid: String,
+        username: String?,
+        position: Int,
+        rPosition: Int?
+    ) {
+    }
 
     fun onBlockUser(id: String, uid: String, position: Int) {}
 
